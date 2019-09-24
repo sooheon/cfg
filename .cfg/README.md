@@ -7,21 +7,23 @@ Rationale:
 ## Building a config
 
 ```
-git clone --bare $THIS_REPO_URL $HOME/.cfg
+git init --bare $THIS_REPO_URL $HOME/.cfg
 echo "alias cfg='git --git-dir=$HOME/.cfg/ --work-tree=$HOME'" >> $HOME/.zshrc
 source $HOME/.zshrc
-cfg checkout
+cfg config status.showUntrackedFiles no
+cfg add $SOME_DOTFILE
 ```
 
 ## New System
 ```
 echo "alias cfg='git --git-dir=$HOME/.cfg/ --work-tree=$HOME'" >> $HOME/.zshrc
 echo ".cfg" >> .gitignore
-git clone --bare $THIS_REPO_URL
+git clone --bare $THIS_REPO_URL $HOME/.cfg
 
 mkdir -p .config-backup && \
 config checkout 2>&1 | egrep "\s+\." | awk {'print $1'} | \
 xargs -I{} mv {} .config-backup/{}
 
 cfg checkout
+cfg config status.showUntrackedFiles no
 ```

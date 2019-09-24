@@ -5,13 +5,13 @@ typeset -U fpath
 # Add path entries
 path+=~/bin:~/.local/bin
 
-export DYLD_LIBRARY_PATH=/opt/intel/lib:/opt/intel/mkl/lib
+DYLD_LIBRARY_PATH=/opt/intel/lib:/opt/intel/mkl/lib
 
 # Delete with C-w or M-backspace stops at backslash
 autoload -U select-word-style
 select-word-style bash
 
-# Completion config
+# Auto CD when typing dir paths
 setopt auto_cd
 
 # Homebrew completions
@@ -54,10 +54,10 @@ zplugin light zsh-users/zsh-history-substring-search
 bindkey -M emacs '^P' history-substring-search-up
 bindkey -M emacs '^N' history-substring-search-down
 
-# Theme
+# Prompt
 zplugin ice pick'async.zsh' src'pure.zsh'
 zplugin light sindresorhus/pure
-PURE_PROMPT_SYMBOL='>'
+PURE_PROMPT_SYMBOL='%%'
 PURE_PROMPT_VICMD_SYMBOL='<'
 
 autoload -Uz compinit && compinit
