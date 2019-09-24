@@ -10,3 +10,4 @@ echo "alias cfg='git --git-dir=$HOME/.cfg/ --work-tree=$HOME'" >> $HOME/.zshrc
 source $HOME/.zshrc
 cfg checkout
 ````
+
