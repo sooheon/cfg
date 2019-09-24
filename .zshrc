@@ -57,8 +57,9 @@ bindkey -M emacs '^N' history-substring-search-down
 zplugin light subnixr/minimal
 MNML_USER_CHAR='%%'
 MNML_INSERT_CHAR=''
-MNML_PROMPT=(mnml_cwd mnml_status)
-MNML_RPROMPT=(mnml_ssh mnml_git mnml_pyenv)
+MNML_PROMPT=(mnml_ssh 'mnml_cwd 2 0' mnml_status)
+MNML_RPROMPT=(mnml_git mnml_pyenv)
+MNML_INFOLN=(mnml_err mnml_jobs mnml_files)
 
 autoload -Uz compinit && compinit
 zplugin cdreplay -q
