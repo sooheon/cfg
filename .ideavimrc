@@ -1,0 +1,37 @@
+set surround
+set multiple-cursors
+set commentary
+set incsearch
+set gdefault
+set smartcase
+set scrolloff 4
+set wrapscan
+set clipboard=unnamed
+  
+" https://groups.google.com/forum/#!topic/cursive/ueBJTXKRvis
+set iskeyword=@,48-57,_,192-255,?,-,*,!,+,=,<,>,:,$
+
+inoremap <C-f> <Right>
+inoremap <C-b> <Left>
+inoremap <C-n> <Down>
+inoremap <C-p> <Up>
+inoremap <C-a> <Esc>I
+inoremap <C-e> <Esc>A
+inoremap <C-d> <Del>
+          
+noremap Y y$
+        
+nnoremap == :action ReformatCode<cr>
+nmap J :action EditorJoinLines<cr>
+nmap - :action NavbarPopupMenu<cr>
+nmap gcc :action CommentByLineComment<cr>
+
+" Automatically switch to parinfer for insert mode, paredit for normal
+" nnoremap i :action :cursive.actions.paredit/toggle<cr>i
+" nnoremap I :action :cursive.actions.paredit/toggle<cr>I
+" nnoremap o :action :cursive.actions.paredit/toggle<cr>o
+" nnoremap O :action :cursive.actions.paredit/toggle<cr>O
+" nnoremap a :action :cursive.actions.paredit/toggle<cr>a
+" nnoremap A :action :cursive.actions.paredit/toggle<cr>A
+" inoremap <Esc> <Esc> :action :cursive.actions.paredit/toggle<cr>
+" inoremap <C-[> <Esc> :action :cursive.actions.paredit/toggle<cr>
