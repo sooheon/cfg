@@ -23,7 +23,6 @@ fi
 source /usr/local/opt/asdf/asdf.sh
 
 # Aliases
-alias vi=nvim vim=nvim e=emacs
 alias cfg='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
 
 # M-f/M-b fix in IntelliJ IDEA terminal 
@@ -55,10 +54,11 @@ bindkey -M emacs '^P' history-substring-search-up
 bindkey -M emacs '^N' history-substring-search-down
 
 # Prompt
-zplugin ice pick'async.zsh' src'pure.zsh'
-zplugin light sindresorhus/pure
-PURE_PROMPT_SYMBOL='%%'
-PURE_PROMPT_VICMD_SYMBOL='<'
+zplugin light subnixr/minimal
+MNML_USER_CHAR='%%'
+MNML_INSERT_CHAR=''
+MNML_PROMPT=(mnml_cwd mnml_status)
+MNML_RPROMPT=(mnml_ssh mnml_git mnml_pyenv)
 
 autoload -Uz compinit && compinit
 zplugin cdreplay -q
