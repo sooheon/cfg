@@ -52,8 +52,11 @@
   :init (which-key-mode))
 
 (use-package evil
-  :general ("s-z" 'undo-tree-undo
-	    "s-Z" 'undo-tree-redo)
+  :general
+  ("s-z" 'undo-tree-undo
+   "s-Z" 'undo-tree-redo)
+  (:states 'insert
+	   "C-w" 'evil-delete-backward-word)
   :init
   (setq evil-disable-insert-state-bindings t)
   (evil-mode t))
@@ -90,15 +93,15 @@
   :config
   (setq ivy-use-virtual-buffers t
 	enable-recursive-minibuffers t
-	search-default-mode #'char-fold-to-regexp
-	ivy-re-builders-alist '((t . ivy--regex-fuzzy))))
+	search-default-mode #'char-fold-to-regexp))
 
 (use-package ivy-hydra)
 
 (use-package counsel
   :general
   ("s-e" 'counsel-recentf
-   "s-o" 'find-file))
+   "s-o" 'find-file
+   [remap mac-next-tab-or-toggle-tab-bar] 'counsel-recentf))
 
 ;;** Langs
 (use-package clojure-mode)
@@ -109,6 +112,14 @@
 	cider-repl-use-clojure-font-lock t
 	cider-repl-pop-to-buffer-on-connect nil))
 
+(use-package markdown-mode
+  :commands (markdown-mode gfm-mode)
+  :mode (("README\\.md\\'" . gfm-mode)
+	 ("\\.md\\'" . markdown-mode)
+	 ("\\.markdown\\'" . markdown-mode))
+  :init (setq markdown-command "multimarkdown"))
+
 ;;* Keybindings
 (setq mac-command-modifier 'super
-      mac-option-modifier 'meta)
+      mac-option-modifier 'meta
+      mac-right-option-modifier nil)
