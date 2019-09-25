@@ -55,7 +55,7 @@
   :general
   ("s-z" 'undo-tree-undo
    "s-Z" 'undo-tree-redo)
-  (:states 'insert
+  (:states '(insert emacs)
 	   "C-w" 'evil-delete-backward-word)
   :init
   (setq evil-disable-insert-state-bindings t)
@@ -103,6 +103,12 @@
    "s-o" 'find-file
    [remap mac-next-tab-or-toggle-tab-bar] 'counsel-recentf))
 
+(use-package magit
+  :general
+  ("s-9" 'magit-status
+   "s-k" 'magit-status)
+  :config (setq magit-status-buffer-switch-function))
+
 ;;** Langs
 (use-package clojure-mode)
 
@@ -116,8 +122,7 @@
   :commands (markdown-mode gfm-mode)
   :mode (("README\\.md\\'" . gfm-mode)
 	 ("\\.md\\'" . markdown-mode)
-	 ("\\.markdown\\'" . markdown-mode))
-  :init (setq markdown-command "multimarkdown"))
+	 ("\\.markdown\\'" . markdown-mode)))
 
 ;;* Keybindings
 (setq mac-command-modifier 'super
