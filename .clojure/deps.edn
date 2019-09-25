@@ -1,5 +1,7 @@
+;;; Global deps.edn, mostly cribbed from seancorfield's
 {:aliases
- {:new {:extra-deps {seancorfield/clj-new {:mvn/version "RELEASE"}}
+ {:pomegranate {:extra-deps {com.cemerick/pomegranate {:mvn/version "RELEASE"}}}
+  :new {:extra-deps {seancorfield/clj-new {:mvn/version "RELEASE"}}
         :main-opts ["-m" "clj-new.create"]}
   :outdated {:extra-deps {olical/depot {:mvn/version "RELEASE"}}
              :main-opts ["-m" "depot.outdated.main"]}
