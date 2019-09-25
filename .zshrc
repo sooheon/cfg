@@ -3,9 +3,13 @@ typeset -U path
 typeset -U fpath
 
 # Add path entries
-path+=~/bin:~/.local/bin
+path+=~/.cargo/bin:~/bin:~/.local/bin
 
 DYLD_LIBRARY_PATH=/opt/intel/lib:/opt/intel/mkl/lib
+
+# Aliases
+alias vi=vim
+alias cfg='/usr/local/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
 
 # Delete with C-w or M-backspace stops at backslash
 autoload -U select-word-style
@@ -21,9 +25,6 @@ fi
 
 # asdf support
 source /usr/local/opt/asdf/asdf.sh
-
-# Aliases
-alias cfg='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
 
 # M-f/M-b fix in IntelliJ IDEA terminal 
 # (https://youtrack.jetbrains.com/issue/IDEA-16518)
@@ -57,7 +58,7 @@ bindkey -M emacs '^N' history-substring-search-down
 zplugin light subnixr/minimal
 MNML_USER_CHAR='%%'
 MNML_INSERT_CHAR=''
-MNML_PROMPT=(mnml_ssh 'mnml_cwd 2 0' mnml_status)
+MNML_PROMPT=(mnml_ssh mnml_cwd mnml_status)
 MNML_RPROMPT=(mnml_git mnml_pyenv)
 MNML_INFOLN=(mnml_err mnml_jobs mnml_files)
 
