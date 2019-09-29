@@ -43,7 +43,7 @@ autoload -Uz _zplugin
 # Fish like syntax highlighting
 # Defer tag >=2 means run after compinit command
 zplugin light zsh-users/zsh-syntax-highlighting
-ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern)
+ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets)
 
 # Fish like autosuggest
 zplugin light zsh-users/zsh-autosuggestions
@@ -61,6 +61,23 @@ MNML_INSERT_CHAR=''
 MNML_PROMPT=(mnml_ssh mnml_cwd mnml_status)
 MNML_RPROMPT=(mnml_git mnml_pyenv)
 MNML_INFOLN=(mnml_err mnml_jobs mnml_files)
+
+# History
+HISTSIZE=999999999
+SAVEHIST=$HISTSIZE
+setopt BANG_HIST              # Treat the '!' character specially during expansion.
+setopt EXTENDED_HISTORY       # Write the history file in the ":start:elapsed;command" format.
+setopt INC_APPEND_HISTORY     # Write to the history file immediately, not when the shell exits.
+setopt SHARE_HISTORY          # Share history between all sessions.
+setopt HIST_EXPIRE_DUPS_FIRST # Expire duplicate entries first when trimming history.
+setopt HIST_IGNORE_DUPS       # Don't record an entry that was just recorded again.
+setopt HIST_IGNORE_ALL_DUPS   # Delete old recorded entry if new entry is a duplicate.
+setopt HIST_FIND_NO_DUPS      # Do not display a line previously found.
+setopt HIST_IGNORE_SPACE      # Don't record an entry starting with a space.
+setopt HIST_SAVE_NO_DUPS      # Don't write duplicate entries in the history file.
+setopt HIST_REDUCE_BLANKS     # Remove superfluous blanks before recording entry.
+setopt HIST_VERIFY            # Don't execute immediately upon history expansion.
+setopt HIST_BEEP              # Beep when accessing nonexistent history.
 
 autoload -Uz compinit && compinit
 zplugin cdreplay -q
