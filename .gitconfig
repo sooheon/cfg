@@ -1,6 +1,9 @@
 [user]
 	name = sooheon
 	email = sooheon.k@gmail.com
+[core]
+	autocrlf = input
+	excludesfile = /Users/sooheon/.global_gitignore
 [alias]
 	lol = log --graph --decorate --oneline
 	lola = log --graph --decorate --oneline --all
@@ -17,8 +20,6 @@
 	untracked = red
 [push]
 	default = current
-[core]
-	autocrlf = input
 [pager]
 	diff = /usr/local/bin/diff-highlight | less
 	log = /usr/local/bin/diff-highlight | less
