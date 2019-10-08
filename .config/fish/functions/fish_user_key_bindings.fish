@@ -4,4 +4,5 @@ function fish_user_key_bindings
     bind ∫ backward-word
     bind ∂ delete-word
   end
+  bind \co lf
 end

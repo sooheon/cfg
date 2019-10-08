@@ -51,6 +51,9 @@
 (use-package which-key
   :init (which-key-mode))
 
+(use-package exec-path-from-shell
+  :init (exec-path-from-shell-initialize))
+
 (use-package evil
   :general
   ("s-z" 'undo-tree-undo

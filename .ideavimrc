@@ -7,6 +7,8 @@ set smartcase
 set scrolloff 4
 set wrapscan
 set clipboard=unnamed
+set visualbell
+set noerrorbells
   
 " https://groups.google.com/forum/#!topic/cursive/ueBJTXKRvis
 set iskeyword=@,48-57,_,192-255,?,-,*,!,+,=,<,>,:,$
