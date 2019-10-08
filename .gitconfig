@@ -4,6 +4,7 @@
 [core]
 	autocrlf = input
 	excludesfile = /Users/sooheon/.global_gitignore
+  pager = /usr/local/share/git-core/contrib/diff-highlight/diff-highlight | less
 [alias]
 	lol = log --graph --decorate --oneline
 	lola = log --graph --decorate --oneline --all
@@ -20,9 +21,5 @@
 	untracked = red
 [push]
 	default = current
-[pager]
-	diff = /usr/local/bin/diff-highlight | less
-	log = /usr/local/bin/diff-highlight | less
-	show = /usr/local/bin/diff-highlight | less
 [http]
 	postBuffer = 157286400
