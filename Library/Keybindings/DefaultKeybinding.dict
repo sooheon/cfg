@@ -1,0 +1,13 @@
+{
+    "~f"      = "moveWordForward:";              /* M-f */
+    "~b"      = "moveWordBackward:";             /* M-b */
+    "~<"      = "moveToBeginningOfDocument:";    /* M-< */
+    "~>"      = "moveToEndOfDocument:";          /* M-> */
+    "~d"      = "deleteWordForward:";            /* M-d */
+    "~c"      = "capitalizeWord:";               /* M-c */
+    "~u"      = "uppercaseWord:";                /* M-u */
+    "~l"      = "lowercaseWord:";                /* M-l */
+    "~/"      = "complete:";                     /* M-/ */
+    "^a"      = "moveToBeginningOfLine:";        /* C-a */
+    "^e"      = "moveToEndOfLine:";              /* C-e */   
+}
