@@ -18,12 +18,7 @@ cfg add $SOME_DOTFILE
 ```
 alias cfg='git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
 echo ".cfg" >> .gitignore
-git clone $THIS_REPO_URL $HOME/.cfg
-
-mkdir -p .config-backup && \
-config checkout 2>&1 | egrep "\s+\." | awk {'print $1'} | \
-xargs -I{} mv {} .config-backup/{}
-
+git clone --bare $THIS_REPO_URL $HOME/.cfg
 cfg checkout
 cfg config status.showUntrackedFiles no
 ```
