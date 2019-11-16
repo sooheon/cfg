@@ -12,12 +12,21 @@
   (load bootstrap-file nil 'nomessage))
 
 ;;* Appearance
+(setq inhibit-splash-screen t)
 (menu-bar-mode -1)
 (toggle-scroll-bar -1)
 (tool-bar-mode -1)
 (blink-cursor-mode -1)
 (add-hook 'prog-mode-hook 'display-line-numbers-mode)
+
+;;** Default behaviors
 (defalias 'yes-or-no-p 'y-or-n-p)
+(setq-default vc-follow-symlinks t)
+(defun soo-prog-mode-init ()
+  ;; increse fill-column to 100 while programming
+  (setq-local comment-auto-fill-only-comments t)
+  (setq-local fill-column 100))
+(add-hook 'prog-mode-hook 'soo-prog-mode-init)
  
 ;;** Fonts
 (set-face-attribute 'default nil :family "Input Mono Narrow")
@@ -45,10 +54,44 @@
   (general-define-key
    "s-s" 'save-buffer
    "s-C" 'count-words
-   "s-w" 'kill-current-buffer)
-  (general-define-key
-   :keymaps 'minibuffer-local-map
-   [escape] 'minibuffer-keyboard-quit))
+   "s-w" 'delete-window)
+  (general-define-key :keymaps 'minibuffer-local-map
+		      [escape] 'minibuffer-keyboard-quit)
+  (general-define-key :keymaps 'global-map
+		      [escape] 'keyboard-escape-quit))
+
+(use-package company
+  :hook (after-init . global-company-mode)
+  :config
+  (setq company-idle-delay 0.2
+	company-show-numbers t
+	company-minimum-prefix-length 2
+	company-require-match nil
+	company-tooltip-align-annotations t
+	company-eclim-auto-save nil
+	company-dabbrev-downcase nil)
+  (defun jcs--company-complete-selection--advice-around (fn)
+    "Advice execute around `company-complete-selection' command."
+    (let ((company-dabbrev-downcase t))
+      (call-interactively fn)))
+  (advice-add
+   'company-complete-selection
+   :around #'jcs--company-complete-selection--advice-around))
+
+(use-package company-tabnine
+  :disabled t
+  :after company
+  :config
+  (add-to-list 'company-backends #'company-tabnine))
+
+(use-package flx)
+
+(use-package company-fuzzy
+  :disabled t
+  :after company
+  :config
+  (setq company-fuzzy-sorting-backend 'flx)
+  (global-company-fuzzy-mode 1))
 
 (use-package which-key
   :init (which-key-mode))
@@ -59,12 +102,11 @@
 (use-package evil
   :general
   ("s-z" 'undo-tree-undo "s-Z" 'undo-tree-redo)
-  (:states
-   '(insert emacs)
-   "C-w" 'evil-delete-backward-word)
-  (:states
-   '(normal)
-   "M-." nil)
+  (:states '(insert emacs)
+	   "C-w" 'evil-delete-backward-word)
+  (:states '(normal)
+	   "C-u" 'evil-scroll-up
+	   "M-." nil)
   :init
   (setq evil-disable-insert-state-bindings t)
   (evil-mode t))
@@ -113,8 +155,8 @@
   (use-package ivy-hydra
     :commands (ivy-dispatching-done ivy--matcher-desc ivy-hydra/body)
     :general (:keymaps 'ivy-minibuffer-map
-		       "C-o" #'ivy-dispatching-done
-		       "M-o" #'hydra-ivy/bod)))
+		       "M-o" #'ivy-dispatching-done
+		       "C-o" #'hydra-ivy/body)))
 
 (use-package prescient)
 (use-package ivy-prescient
@@ -135,13 +177,33 @@
 
 (use-package ace-window
   :general
-  ("s-;" 'ace-window))
+  ("M-<tab>" 'ace-window))
+
+(use-package projectile
+  :general
+  ("s-p" 'projectile))
 
 (use-package magit
   :general
   ("s-9" 'magit-status
    "s-k" 'magit-status)
   :config (setq magit-status-buffer-switch-function))
+
+(use-package diff-hl
+  :hook (((prog-mode conf-mode vc-dir-mode ledger-mode) . turn-on-diff-hl-mode)
+	 (magit-post-refresh . diff-hl-magit-post-refresh))
+  :after hydra
+  :config
+  (defhydra hydra-diff-hl (:color red)
+    "diff-hl"
+    ("=" diff-hl-diff-goto-hunk "goto hunk")
+    ("<RET>" diff-hl-diff-goto-hunk "goto hunk")
+    ("u" diff-hl-revert-hunk "revert hunk")
+    ("[" diff-hl-previous-hunk "prev hunk")
+    ("p" diff-hl-previous-hunk "prev hunk")
+    ("]" diff-hl-next-hunk "next hunk")
+    ("n" diff-hl-next-hunk "next hunk")
+    ("q" nil "cancel")))
 
 (use-package flycheck
   :commands (flycheck-list-errors flycheck-buffer)
@@ -162,21 +224,36 @@
 
 
 ;;** Langs
-(use-package clojure-mode)
+;;*** Lisps
+(use-package clojure-mode
+  :config
+  (setq clojure-toplevel-inside-comment-form t))
+
+(use-package cider
+  :general
+  (:keymaps 'cider-mode-map
+	    "<s-return>" #'cider-eval-sexp-at-point
+	    "M-?" #'cider-clojuredocs)
+  (:keymaps 'cider-repl-mode-map
+	    "M-?" #'cider-clojuredocs)
+  :hook
+  (((cider-mode cider-repl-mode) . cider-company-enable-fuzzy-completion)
+   ((cider-mode cider-repl-mode) . eldoc-mode))
+  :config
+  (setq cider-promt-save-file-on-load nil
+	cider-repl-use-clojure-font-lock t
+	cider-repl-pop-to-buffer-on-connect nil))
 
 (use-package clj-refactor
   :hook ((clojure-mode clojurescript-mode) . clj-refactor-mode)
   :config
   (yas-minor-mode 1)
-  (cljr-add-keybindings-with-prefix "C-c C-r"))
+  (cljr-add-keybindings-with-prefix "C-c C-r")
+  (add-to-list 'cljr-magic-require-namespaces '("edn" . "clojure.edn")))
 
-(use-package cider
-  :general (:keymaps 'cider-mode-map
-		     "<s-return>" #'cider-eval-sexp-at-point)
-  :config
-  (setq cider-promt-save-file-on-load nil
-	cider-repl-use-clojure-font-lock t
-	cider-repl-pop-to-buffer-on-connect nil))
+(use-package flycheck-clj-kondo
+  :if (locate-file "clj-kondo" exec-path)
+  :after (flycheck clojure-mode))
 
 (use-package inf-clojure
   :config
@@ -184,11 +261,16 @@
   (setq inf-clojure-generic-cmd "plk"
 	inf-clojure-tools-deps-cmd "plk"))
 
+;;**** Markup langs
 (use-package markdown-mode
   :commands (markdown-mode gfm-mode)
   :mode (("README\\.md\\'" . gfm-mode)
-	 ("\\.md\\'" . markdown-mode)
-	 ("\\.markdown\\'" . markdown-mode)))
+	 ("\\.md\\'" . gfm-mode)
+	 ("\\.markdown\\'" . gfm-mode)
+	 ("/itsalltext/.*\\(gitlab\\|github\\).*\\.txt$" . gfm-mode)))
+
+(use-package adoc-mode
+  :mode ("\\.adoc\\'"))
 
 (use-package elisp-slime-nav
   :hook (emacs-lisp-mode . elisp-slime-nav-mode)
@@ -207,6 +289,20 @@
   (when (and (executable-find "python3")
 	     (string= python-shell-interpreter "python"))
     (setq python-shell-interpreter "python3")))
+
+;;*** Fish
+(use-package company-shell)
+(use-package fish-mode
+  :mode "\\.fish\\'"
+  :hook ((fish-mode shell-mode) . fish-mode-init)
+  :config
+  (defun fish-mode-init ()
+    (setq-local company-backends '((company-fish-shell
+				    company-shell
+				    company-shell-env
+				    company-files
+				    company-dabbrev-code
+				    company-yasnippet)))))
 
 ;;* Keybindings
 (setq mac-command-modifier 'super
