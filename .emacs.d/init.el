@@ -60,7 +60,10 @@
   (general-define-key :keymaps 'global-map
 		      [escape] 'keyboard-escape-quit))
 
+(use-package delight)
+
 (use-package company
+  :delight company-mode
   :hook (after-init . global-company-mode)
   :config
   (setq company-idle-delay 0.2
@@ -94,12 +97,14 @@
   (global-company-fuzzy-mode 1))
 
 (use-package which-key
+  :delight which-key-mode
   :init (which-key-mode))
 
 (use-package exec-path-from-shell
   :init (exec-path-from-shell-initialize))
 
 (use-package evil
+  :delight undo-tree-mode
   :general
   ("s-z" 'undo-tree-undo "s-Z" 'undo-tree-redo)
   (:states '(insert emacs)
@@ -112,6 +117,7 @@
   (evil-mode t))
 
 (use-package lispy
+  :delight lispy-mode
   :hook ((emacs-lisp-mode
 	  clojure-mode
 	  clojurescript-mode
@@ -131,7 +137,7 @@
 
 (use-package lispyville
   :hook (lispy-mode . lispyville-mode)
-  :diminish lispyville-mode
+  :delight lispyville-mode
   :general
   ([remap evil-normal-state] 'lispyville-normal-state)
   (:keymaps 'lispyville-mode-map
@@ -142,6 +148,7 @@
 	lispyville-barf-stay-with-closing t))
 
 (use-package ivy
+  :delight ivy-mode
   :init (ivy-mode 1)
   :config
   (setq ivy-use-virtual-buffers nil
@@ -158,6 +165,12 @@
 		       "M-o" #'ivy-dispatching-done
 		       "C-o" #'hydra-ivy/body)))
 
+(use-package ivy-posframe
+  :after ivy-mode
+  :init
+  (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-window-center)))
+  (ivy-posframe-mode 1))
+
 (use-package prescient)
 (use-package ivy-prescient
   :hook (ivy-mode . ivy-prescient-mode)
@@ -170,7 +183,6 @@
    [remap describe-function] #'counsel-describe-function
    "s-e" 'counsel-recentf
    "s-j" 'counsel-rg
-   "s-o" 'find-file
    "<C-tab>" 'counsel-switch-buffer
    [remap switch-to-buffer] #'counsel-switch-buffer
    [remap mac-next-tab-or-toggle-tab-bar] 'counsel-recentf))
@@ -181,7 +193,9 @@
 
 (use-package projectile
   :general
-  ("s-p" 'projectile))
+  ("s-p" 'projectile
+   "s-o" 'projectile-find-file
+   "s-T" 'projectile-toggle-between-implementation-and-test))
 
 (use-package magit
   :general
@@ -233,9 +247,10 @@
   :general
   (:keymaps 'cider-mode-map
 	    "<s-return>" #'cider-eval-sexp-at-point
-	    "M-?" #'cider-clojuredocs)
-  (:keymaps 'cider-repl-mode-map
-	    "M-?" #'cider-clojuredocs)
+	    "M-." 'cider-find-var)
+  (:keymaps 'cider-mode-map :states '(normal)
+	    "K" 'cider-doc-lookup)
+  (:keymaps 'cider-repl-mode-map)
   :hook
   (((cider-mode cider-repl-mode) . cider-company-enable-fuzzy-completion)
    ((cider-mode cider-repl-mode) . eldoc-mode))
@@ -250,6 +265,9 @@
   (yas-minor-mode 1)
   (cljr-add-keybindings-with-prefix "C-c C-r")
   (add-to-list 'cljr-magic-require-namespaces '("edn" . "clojure.edn")))
+
+(use-package eldoc
+  :delight eldoc-mode)
 
 (use-package flycheck-clj-kondo
   :if (locate-file "clj-kondo" exec-path)
@@ -274,6 +292,7 @@
 
 (use-package elisp-slime-nav
   :hook (emacs-lisp-mode . elisp-slime-nav-mode)
+  :delight elisp-slime-nav-mode
   :general
   (:states
    'normal :keymaps 'emacs-lisp-mode-map
@@ -308,3 +327,11 @@
 (setq mac-command-modifier 'super
       mac-option-modifier 'meta
       mac-right-option-modifier nil)
+
+(use-package zenburn-theme
+  :defer t
+  :config
+  (fringe-mode 0))
+
+(use-package doom-themes
+  :defer t)
