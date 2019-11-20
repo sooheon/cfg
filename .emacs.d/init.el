@@ -66,7 +66,7 @@
   :delight company-mode
   :hook (after-init . global-company-mode)
   :config
-  (setq company-idle-delay 0.2
+  (setq company-idle-delay 0.1
 	company-show-numbers t
 	company-minimum-prefix-length 2
 	company-require-match nil
@@ -79,7 +79,18 @@
       (call-interactively fn)))
   (advice-add
    'company-complete-selection
-   :around #'jcs--company-complete-selection--advice-around))
+   :around #'jcs--company-complete-selection--advice-around)
+
+  (eval-after-load 'semantic
+    (add-hook 'semantic-mode-hook
+	      (lambda ()
+		(dolist (x completion-at-point-functions)
+		  (when (string-prefix-p "semantic-" (symbol-name x))
+		    (remove-hook 'completion-at-point-functions x)))))))
+
+(use-package company-prescient
+  :config
+  (company-prescient-mode 1))
 
 (use-package company-tabnine
   :disabled t
@@ -125,12 +136,13 @@
 	 . lispy-mode)
   :diminish lispy-mode
   :general (:keymaps 'lispy-mode-map
-		     "DEL" 'lispy-backward-delete
-		     "[" 'lispy-brackets
-		     "{" 'lispy-braces
-		     "M-{" 'lispy-wrap-braces
-		     "M-[" 'lispy-wrap-brackets
-		     "M-(" 'lispy-wrap-round)
+		     "DEL" #'lispy-backward-delete
+		     "[" #'lispy-brackets
+		     "{" #'lispy-braces
+		     "M-{" #'lispy-wrap-braces
+		     "M-[" #'lispy-wrap-brackets
+		     "M-(" #'lispy-wrap-round
+		     "M-r" #'lispy-raise-sexp)
   :config
   (lispy-set-key-theme '(special parinfer c-digits))
   (setq lispy-eval-display-style 'overlay))
@@ -146,6 +158,11 @@
   :init
   (setq lispyville-key-theme '(operators c-w escape slurp/barf-cp wrap escape)
 	lispyville-barf-stay-with-closing t))
+
+(use-package aggressive-indent
+  :delight (global-aggressive-indent-mode aggresive-indent-mode)
+  :config
+  (global-aggressive-indent-mode 1))
 
 (use-package ivy
   :delight ivy-mode
@@ -166,26 +183,26 @@
 		       "C-o" #'hydra-ivy/body)))
 
 (use-package ivy-posframe
-  :after ivy-mode
+  :delight ivy-posframe-mode
   :init
-  (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-window-center)))
+  (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-center)))
   (ivy-posframe-mode 1))
 
 (use-package prescient)
 (use-package ivy-prescient
   :hook (ivy-mode . ivy-prescient-mode)
   :init (setq prescient-persist-mode t))
-(use-package company-prescient)
 
 (use-package counsel
   :general
   ([remap apropos] #'counsel-apropos
    [remap describe-function] #'counsel-describe-function
-   "s-e" 'counsel-recentf
-   "s-j" 'counsel-rg
-   "<C-tab>" 'counsel-switch-buffer
+   "s-e" #'counsel-recentf
+   "s-i" #'counsel-semantic-or-imenu
+   "s-j" #'counsel-rg
+   "<C-tab>" #'counsel-switch-buffer
    [remap switch-to-buffer] #'counsel-switch-buffer
-   [remap mac-next-tab-or-toggle-tab-bar] 'counsel-recentf))
+   [remap mac-next-tab-or-toggle-tab-bar] #'counsel-recentf))
 
 (use-package ace-window
   :general
@@ -247,17 +264,19 @@
   :general
   (:keymaps 'cider-mode-map
 	    "<s-return>" #'cider-eval-sexp-at-point
-	    "M-." 'cider-find-var)
-  (:keymaps 'cider-mode-map :states '(normal)
-	    "K" 'cider-doc-lookup)
-  (:keymaps 'cider-repl-mode-map)
+	    "M-." #'cider-find-var
+	    "C-s-t" #'cider-test-run-project-tests)
+  (:states '(normal) :keymaps 'cider-mode-map
+	   "K" #'cider-doc)
   :hook
   (((cider-mode cider-repl-mode) . cider-company-enable-fuzzy-completion)
    ((cider-mode cider-repl-mode) . eldoc-mode))
   :config
-  (setq cider-promt-save-file-on-load nil
+  (setq cider-prompt-save-file-on-load nil
 	cider-repl-use-clojure-font-lock t
-	cider-repl-pop-to-buffer-on-connect nil))
+	cider-repl-pop-to-buffer-on-connect nil
+	cider-clojure-cli-global-options "-A:test"
+	cider-prompt-for-symbol nil))
 
 (use-package clj-refactor
   :hook ((clojure-mode clojurescript-mode) . clj-refactor-mode)
@@ -279,6 +298,8 @@
   (setq inf-clojure-generic-cmd "plk"
 	inf-clojure-tools-deps-cmd "plk"))
 
+(use-package haskell-mode)
+
 ;;**** Markup langs
 (use-package markdown-mode
   :commands (markdown-mode gfm-mode)
@@ -294,12 +315,10 @@
   :hook (emacs-lisp-mode . elisp-slime-nav-mode)
   :delight elisp-slime-nav-mode
   :general
-  (:states
-   'normal :keymaps 'emacs-lisp-mode-map
-   "K" 'elisp-slime-nav-describe-elisp-thing-at-point)
-  (:keymaps
-   'emacs-lisp-mode-map
-   "M-." 'elisp-slime-nav-find-elisp-thing-at-point))
+  (:states 'normal :keymaps 'emacs-lisp-mode-map
+	   "K" 'elisp-slime-nav-describe-elisp-thing-at-point)
+  (:keymaps 'emacs-lisp-mode-map
+	    "M-." 'elisp-slime-nav-find-elisp-thing-at-point))
 
 (use-package python
   :init
@@ -325,7 +344,9 @@
 
 ;;* Keybindings
 (setq mac-command-modifier 'super
+      mac-right-command-modifier 'super
       mac-option-modifier 'meta
+      mac-right-option-modifier 'meta
       mac-right-option-modifier nil)
 
 (use-package zenburn-theme
@@ -333,5 +354,12 @@
   :config
   (fringe-mode 0))
 
+(use-package yasnippet
+  :delight yas-minor-mode)
+
 (use-package doom-themes
-  :defer t)
+  :defer t
+  :config (load-theme 'doom-one t))
+
+;; emacs server
+(server-start)
