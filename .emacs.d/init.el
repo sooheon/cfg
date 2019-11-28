@@ -18,6 +18,7 @@
 (tool-bar-mode -1)
 (blink-cursor-mode -1)
 (add-hook 'prog-mode-hook 'display-line-numbers-mode)
+(fringe-mode 0)
 
 ;;** Default behaviors
 (defalias 'yes-or-no-p 'y-or-n-p)
@@ -141,8 +142,9 @@
 		     "{" #'lispy-braces
 		     "M-{" #'lispy-wrap-braces
 		     "M-[" #'lispy-wrap-brackets
-		     "M-(" #'lispy-wrap-round
-		     "M-r" #'lispy-raise-sexp)
+		     "M-(" #'lispy-wrap-round)
+  (:keymaps 'global-map
+	    "M-r" #'lispy-raise-sexp)
   :config
   (lispy-set-key-theme '(special parinfer c-digits))
   (setq lispy-eval-display-style 'overlay))
@@ -160,6 +162,7 @@
 	lispyville-barf-stay-with-closing t))
 
 (use-package aggressive-indent
+  :diminish (global-aggressive-indent-mode aggressive-indent-mode)
   :delight (global-aggressive-indent-mode aggresive-indent-mode)
   :config
   (global-aggressive-indent-mode 1))
@@ -203,6 +206,8 @@
    "<C-tab>" #'counsel-switch-buffer
    [remap switch-to-buffer] #'counsel-switch-buffer
    [remap mac-next-tab-or-toggle-tab-bar] #'counsel-recentf))
+
+(use-package avy)
 
 (use-package ace-window
   :general
@@ -276,14 +281,17 @@
 	cider-repl-use-clojure-font-lock t
 	cider-repl-pop-to-buffer-on-connect nil
 	cider-clojure-cli-global-options "-A:test"
-	cider-prompt-for-symbol nil))
+	cider-prompt-for-symbol nil
+	cider-print-fn 'zprint))
 
 (use-package clj-refactor
+  :delight clj-refactor-mode
   :hook ((clojure-mode clojurescript-mode) . clj-refactor-mode)
   :config
   (yas-minor-mode 1)
   (cljr-add-keybindings-with-prefix "C-c C-r")
-  (add-to-list 'cljr-magic-require-namespaces '("edn" . "clojure.edn")))
+  (add-to-list 'cljr-magic-require-namespaces '("edn" . "clojure.edn"))
+  (setq cljr-warn-on-eval nil))
 
 (use-package eldoc
   :delight eldoc-mode)
@@ -346,20 +354,21 @@
 (setq mac-command-modifier 'super
       mac-right-command-modifier 'super
       mac-option-modifier 'meta
-      mac-right-option-modifier 'meta
-      mac-right-option-modifier nil)
-
-(use-package zenburn-theme
-  :defer t
-  :config
-  (fringe-mode 0))
+      mac-right-option-modifier 'meta)
 
 (use-package yasnippet
   :delight yas-minor-mode)
 
+;;* Themes
+
+(use-package zenburn-theme
+  :defer t)
+
 (use-package doom-themes
-  :defer t
-  :config (load-theme 'doom-one t))
+  :defer t)
+
+(load-theme 'zenburn t)
 
 ;; emacs server
-(server-start)
+(require 'server)
+(unless (server-running-p) (server-start))

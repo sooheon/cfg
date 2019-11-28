@@ -1,6 +1,10 @@
 set surround
 set multiple-cursors
 set commentary
+set easymotion
+
+let mapleader = " "
+
 set incsearch
 set gdefault
 set smartcase
@@ -9,9 +13,9 @@ set wrapscan
 set clipboard=unnamed
 set visualbell
 set noerrorbells
-  
+
 " https://groups.google.com/forum/#!topic/cursive/ueBJTXKRvis
-set iskeyword=@,48-57,_,192-255,?,-,*,!,+,=,<,>,:,$
+set iskeyword=@,48-57,_,#,192-255,?,-,*,!,+,=,<,>,:,$
 
 inoremap <C-f> <Right>
 inoremap <C-b> <Left>
@@ -20,9 +24,9 @@ inoremap <C-p> <Up>
 inoremap <C-a> <Esc>I
 inoremap <C-e> <Esc>A
 inoremap <C-d> <Del>
-          
+
 noremap Y y$
-        
+
 nnoremap == :action ReformatCode<cr>
 nmap J :action EditorJoinLines<cr>
 nmap - :action NavbarPopupMenu<cr>

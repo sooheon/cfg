@@ -21,3 +21,9 @@ alias gcc=gcc-9
 
 # ASDF
 source /usr/local/opt/asdf/asdf.fish
+
+# >>> conda initialize >>>
+# !! Contents within this block are managed by 'conda init' !!
+eval /Users/skim/.asdf/installs/python/miniconda3-4.3.30/bin/conda "shell.fish" "hook" $argv | source
+# <<< conda initialize <<<
+
