@@ -80,4 +80,5 @@ setopt HIST_VERIFY            # Don't execute immediately upon history expansion
 setopt HIST_BEEP              # Beep when accessing nonexistent history.
 
 autoload -Uz compinit && compinit
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
 zplugin cdreplay -q
