@@ -18,7 +18,8 @@
 (tool-bar-mode -1)
 (blink-cursor-mode -1)
 (add-hook 'prog-mode-hook 'display-line-numbers-mode)
-(fringe-mode 0)
+(fringe-mode '(8 . 0)) 			; only have left fringe
+(setq indicate-empty-lines t)
 
 ;;** Default behaviors
 (defalias 'yes-or-no-p 'y-or-n-p)
@@ -28,6 +29,10 @@
   (setq-local comment-auto-fill-only-comments t)
   (setq-local fill-column 100))
 (add-hook 'prog-mode-hook 'soo-prog-mode-init)
+(setq auto-save-default nil)
+(setq make-backup-file nil)
+(save-place-mode 1)
+(setq default-input-method "korean-hangul")
  
 ;;** Fonts
 (set-face-attribute 'default nil :family "Input Mono Narrow")
@@ -55,7 +60,10 @@
   (general-define-key
    "s-s" 'save-buffer
    "s-C" 'count-words
-   "s-w" 'delete-window)
+   "s-w" 'kill-this-buffer
+   "s-o" 'find-file
+   "s-v" 'yank
+   "s-a" 'mark-whole-buffer)
   (general-define-key :keymaps 'minibuffer-local-map
 		      [escape] 'minibuffer-keyboard-quit)
   (general-define-key :keymaps 'global-map
@@ -80,14 +88,10 @@
       (call-interactively fn)))
   (advice-add
    'company-complete-selection
-   :around #'jcs--company-complete-selection--advice-around)
+   :around #'jcs--company-complete-selection--advice-around))
 
-  (eval-after-load 'semantic
-    (add-hook 'semantic-mode-hook
-	      (lambda ()
-		(dolist (x completion-at-point-functions)
-		  (when (string-prefix-p "semantic-" (symbol-name x))
-		    (remove-hook 'completion-at-point-functions x)))))))
+;; Semantic config
+(setq semanticdb-search-system-databases nil)
 
 (use-package company-prescient
   :config
@@ -126,7 +130,19 @@
 	   "M-." nil)
   :init
   (setq evil-disable-insert-state-bindings t)
-  (evil-mode t))
+  :config
+  (evil-mode 1))
+
+(use-package evil-visualstar
+  :after evil
+  :config
+  (global-evil-visualstar-mode 1))
+
+(use-package evil-anzu
+  :after evil
+  :delight anzu-mode
+  :config
+  (global-anzu-mode t))
 
 (use-package lispy
   :delight lispy-mode
@@ -162,6 +178,7 @@
 	lispyville-barf-stay-with-closing t))
 
 (use-package aggressive-indent
+  :disabled t
   :diminish (global-aggressive-indent-mode aggressive-indent-mode)
   :delight (global-aggressive-indent-mode aggresive-indent-mode)
   :config
@@ -169,6 +186,8 @@
 
 (use-package ivy
   :delight ivy-mode
+  :general
+  ("s-b" 'ivy-switch-buffer)
   :init (ivy-mode 1)
   :config
   (setq ivy-use-virtual-buffers nil
@@ -200,14 +219,55 @@
   :general
   ([remap apropos] #'counsel-apropos
    [remap describe-function] #'counsel-describe-function
-   "s-e" #'counsel-recentf
+   "s-e" #'counsel-buffer-or-recentf
    "s-i" #'counsel-semantic-or-imenu
    "s-j" #'counsel-rg
    "<C-tab>" #'counsel-switch-buffer
+   "s-f" #'counsel-grep-or-swiper
    [remap switch-to-buffer] #'counsel-switch-buffer
    [remap mac-next-tab-or-toggle-tab-bar] #'counsel-recentf))
 
 (use-package avy)
+
+(use-package worf
+  :disabled t
+  :hook (org-mode . worf-mode)
+  :config (setq org-adapt-indentation nil))
+
+
+(setq sooheon-org-dir "~/Documents/org/")
+(use-package org
+  :general
+  (:keymaps 'org-mode-map
+	    "<C-tab>" nil)
+  :config
+  (setq org-adapt-indentation nil))
+
+(use-package org-roam
+  :hook
+  (after-init . org-roam-mode)
+  :straight (:host github :repo "jethrokuan/org-roam" :branch "develop")
+  :delight org-roam-mode
+  :custom
+  (org-roam-directory sooheon-org-dir)
+  (org-roam-buffer-width 0.33)
+  :bind (:map
+	 org-roam-mode-map
+	 (("C-c n l" . org-roam)
+	  ("C-c n f" . org-roam-find-file)
+	  ("C-c n g" . org-roam-show-graph))
+	 :map
+	 org-mode-map
+	 (("C-c n i" . org-roam-insert))))
+
+(use-package org-journal
+  :bind
+  ("C-c n j" . org-journal-new-entry)
+  :custom
+  (org-journal-date-prefix "#+TITLE: ")
+  (org-journal-file-format "%Y-%m-%d.org")
+  (org-journal-dir sooheon-org-dir)
+  (org-journal-date-format "%A, %d %B %Y"))
 
 (use-package ace-window
   :general
@@ -216,18 +276,22 @@
 (use-package projectile
   :general
   ("s-p" 'projectile
-   "s-o" 'projectile-find-file
+   "s-O" 'projectile-find-file
    "s-T" 'projectile-toggle-between-implementation-and-test))
 
 (use-package magit
   :general
   ("s-9" 'magit-status
-   "s-k" 'magit-status)
-  :config (setq magit-status-buffer-switch-function))
+   "s-k" 'magit-status))
+
+(use-package evil-magit)
+
+(use-package magit-todos)
 
 (use-package diff-hl
   :hook (((prog-mode conf-mode vc-dir-mode ledger-mode) . turn-on-diff-hl-mode)
 	 (magit-post-refresh . diff-hl-magit-post-refresh))
+  :custom (diff-hl-draw-borders . nil)
   :after hydra
   :config
   (defhydra hydra-diff-hl (:color red)
@@ -257,6 +321,9 @@
 	    '(normal)
 	    :prefix "SPC"
 	    "tg" #'golden-ratio))
+
+(use-package verb
+  :mode ("\\.verb\\'" . verb-mode))
 
 
 ;;** Langs
@@ -309,6 +376,9 @@
 (use-package haskell-mode)
 
 ;;**** Markup langs
+(use-package unfill
+  :general ("M-q" 'toggle-fill-unfill))
+
 (use-package markdown-mode
   :commands (markdown-mode gfm-mode)
   :mode (("README\\.md\\'" . gfm-mode)
@@ -350,24 +420,26 @@
 				    company-dabbrev-code
 				    company-yasnippet)))))
 
+;;* IRC
+(use-package circe
+  '(("Freenode"
+     :tls t
+     :nick "sooheon"
+     :channels ("#dwarffortress"))))
+
 ;;* Keybindings
 (setq mac-command-modifier 'super
-      mac-right-command-modifier 'super
       mac-option-modifier 'meta
+      mac-right-command-modifier 'super
       mac-right-option-modifier 'meta)
 
 (use-package yasnippet
   :delight yas-minor-mode)
 
 ;;* Themes
+(use-package zenburn-theme :defer t)
 
-(use-package zenburn-theme
-  :defer t)
-
-(use-package doom-themes
-  :defer t)
-
-(load-theme 'zenburn t)
+(use-package doom-themes :defer t)
 
 ;; emacs server
 (require 'server)
