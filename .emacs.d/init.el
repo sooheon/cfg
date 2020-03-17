@@ -55,12 +55,20 @@
   (setq custom-file
 	(no-littering-expand-etc-file-name "custom.el")))
 
+(defun soo--delete-window-or-kill-buffer ()
+  "When there are multiple windows open, close active
+one. Otherwise kill buffer."
+  (interactive)
+  (if (one-window-p)
+      (kill-this-buffer)
+    (delete-window)))
+
 (use-package general
   :init
   (general-define-key
    "s-s" 'save-buffer
    "s-C" 'count-words
-   "s-w" 'kill-this-buffer
+   "s-w" 'soo--delete-window-or-kill-buffer
    "s-o" 'find-file
    "s-v" 'yank
    "s-a" 'mark-whole-buffer)
@@ -74,6 +82,8 @@
 (use-package company
   :delight company-mode
   :hook (after-init . global-company-mode)
+  :general (:keymaps 'company-active-map
+		     "C-w" nil)
   :config
   (setq company-idle-delay 0.1
 	company-show-numbers t
@@ -269,6 +279,15 @@
   (org-journal-dir sooheon-org-dir)
   (org-journal-date-format "%A, %d %B %Y"))
 
+(use-package deft
+  :after org
+  :bind ("C-c n d" . deft)
+  :custom
+  (deft-recursive t)
+  (deft-use-filter-string-for-filename t)
+  (deft-default-extension "org")
+  (deft-directory "~/Documents/org/"))
+
 (use-package ace-window
   :general
   ("M-<tab>" 'ace-window))
@@ -349,7 +368,7 @@
 	cider-repl-pop-to-buffer-on-connect nil
 	cider-clojure-cli-global-options "-A:test"
 	cider-prompt-for-symbol nil
-	cider-print-fn 'zprint))
+	cider-print-fn 'pprint))
 
 (use-package clj-refactor
   :delight clj-refactor-mode
@@ -422,10 +441,13 @@
 
 ;;* IRC
 (use-package circe
-  '(("Freenode"
-     :tls t
-     :nick "sooheon"
-     :channels ("#dwarffortress"))))
+  :config
+  (setq circe-network-options
+	'(("Freenode"
+	   :nick "sooheon"
+	   :sasl-username "sooheon"
+	   :sasl-password "buildallthosebridges"
+	   :channels ("#dwarffortress" "#dfhack")))))
 
 ;;* Keybindings
 (setq mac-command-modifier 'super
