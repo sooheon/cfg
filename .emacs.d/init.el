@@ -33,6 +33,9 @@
 (setq make-backup-file nil)
 (save-place-mode 1)
 (setq default-input-method "korean-hangul")
+(setq sentence-end-double-space nil)
+(column-number-mode 1)
+(setq-default fill-column 80)
  
 ;;** Fonts
 (set-face-attribute 'default nil :family "Input Mono Narrow")
@@ -73,9 +76,7 @@ one. Otherwise kill buffer."
    "s-v" 'yank
    "s-a" 'mark-whole-buffer)
   (general-define-key :keymaps 'minibuffer-local-map
-		      [escape] 'minibuffer-keyboard-quit)
-  (general-define-key :keymaps 'global-map
-		      [escape] 'keyboard-escape-quit))
+		      [escape] 'minibuffer-keyboard-quit))
 
 (use-package delight)
 
@@ -197,6 +198,8 @@ one. Otherwise kill buffer."
 (use-package ivy
   :delight ivy-mode
   :general
+  (:keymaps 'ivy-minibuffer-map
+	    [escape] 'keyboard-escape-quit)
   ("s-b" 'ivy-switch-buffer)
   :init (ivy-mode 1)
   :config
@@ -207,12 +210,12 @@ one. Otherwise kill buffer."
 	ivy-height 12
 	ivy-wrap t
 	projectile-completion-system 'ivy )
-
   (use-package ivy-hydra
     :commands (ivy-dispatching-done ivy--matcher-desc ivy-hydra/body)
     :general (:keymaps 'ivy-minibuffer-map
 		       "M-o" #'ivy-dispatching-done
 		       "C-o" #'hydra-ivy/body)))
+
 
 (use-package ivy-posframe
   :delight ivy-posframe-mode
@@ -231,25 +234,38 @@ one. Otherwise kill buffer."
    [remap describe-function] #'counsel-describe-function
    "s-e" #'counsel-buffer-or-recentf
    "s-i" #'counsel-semantic-or-imenu
-   "s-j" #'counsel-rg
+   "s-j" #'soo--counsel-rg-or-grep
    "<C-tab>" #'counsel-switch-buffer
    "s-f" #'counsel-grep-or-swiper
    [remap switch-to-buffer] #'counsel-switch-buffer
-   [remap mac-next-tab-or-toggle-tab-bar] #'counsel-recentf))
+   [remap mac-next-tab-or-toggle-tab-bar] #'counsel-recentf)
+  :config
+  (defun soo--counsel-rg-or-grep ()
+    (interactive)
+    (if (executable-find "rg")
+	(call-interactively 'counsel-rg)
+      (call-interactively 'counsel-grep))))
 
 (use-package avy)
+
+(use-package popwin
+  :general
+  (:keymaps 'help-mode-map [escape] 'quit-window)
+  :config
+  (popwin-mode 1))
 
 (use-package worf
   :disabled t
   :hook (org-mode . worf-mode)
   :config (setq org-adapt-indentation nil))
 
-
 (setq sooheon-org-dir "~/Documents/org/")
+
 (use-package org
   :general
   (:keymaps 'org-mode-map
 	    "<C-tab>" nil)
+  :hook (org-mode . auto-fill-mode)
   :config
   (setq org-adapt-indentation nil))
 
