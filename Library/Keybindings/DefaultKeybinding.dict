@@ -10,4 +10,5 @@
     "~/"      = "complete:";                     /* M-/ */
     "^a"      = "moveToBeginningOfLine:";        /* C-a */
     "^e"      = "moveToEndOfLine:";              /* C-e */   
+    "^w"      = "deleteWordBackward:";		 /* C-w */
 }
